@@ -19,22 +19,32 @@ public class KnowledgeDrop : MonoBehaviour {
 	public float timeLimit;
 
 	// basic vars
-	public string mode;
-	private bool activated;
-	private int pageIndex;
-	private float timer;
+	private bool activated = false;
+	private int pageIndex = 0;
+	private float timer = 0.0f;
 
-	private GUISkin style;
-//	private Font fonts;
+	// mode things
+	/*
+	 * inactive = 0
+	 * intro = 1
+	 * drop = 2
+	 * question = 3
+	 * finale = 4
+	 * idle = 5
+	 */
+	public string mode = "inactive";
+//	public int currentMode = 0;
 
-	void Start () {
-		mode = "inactive";
-		activated = false;
-		pageIndex = 0;
-		timer = 0.0f;
-//
-//		fonts.fontNames = "Comic Sans MS"
-//		style
+
+	public void TurnOn()
+	{
+		activated = true;
+		mode = "intro";
+	}
+
+	public void Next()
+	{
+//		currentMode++;
 	}
 
 	void OnGUI () {
@@ -42,11 +52,11 @@ public class KnowledgeDrop : MonoBehaviour {
 		{
 			if(mode == "intro")
 			{
-				Intro();				
-//				GUI.Box(new Rect(150, 150, 500, 250),topic);
-				
+				Intro();
+
+				// animate intro icon
 				timer += Time.deltaTime;
-				if(timer > 15.0f)
+				if(timer > 5.0f)
 				{
 					mode = "drop";
 					timer = 0.0f;
@@ -56,16 +66,18 @@ public class KnowledgeDrop : MonoBehaviour {
 			if(mode == "drop")
 			{
 				ShowPage(pageIndex);
-				timer += Time.deltaTime;
-				if (timer > timeLimit)
-				{
-					NextPage();
-					if(pageIndex > Pages.Length-1)
-					{
-						mode = "question";
-						timer = 0.0f;
-					}
-				}
+
+
+//				timer += Time.deltaTime;
+//				if (timer > timeLimit)
+//				{
+//					NextPage();
+//					if(pageIndex > Pages.Length-1)
+//					{
+//						mode = "question";
+//						timer = 0.0f;
+//					}
+//				}
 			}
 			
 			if(mode == "question")
@@ -96,10 +108,14 @@ public class KnowledgeDrop : MonoBehaviour {
 	}
 
 
+	public void Stop()
+	{
+		activated = false;
+	}
+
 	public void Intro()
 	{
 		Debug.Log ("Topic: " + topic);
-		activated = true;
 
 //		guiText.text = topic;
 //		guiText.transform.position = new Vector2 (50, 50);
@@ -113,7 +129,7 @@ public class KnowledgeDrop : MonoBehaviour {
 		// do animation
 
 		// when done change mode to drop (this is where we start to drop knowledge)
-		mode = "intro";
+//		mode = "intro";
 	}
 
 

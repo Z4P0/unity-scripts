@@ -4,55 +4,46 @@ using System.Collections;
 public class GUI_Trigger : MonoBehaviour {
 
 	private float triggerTimer;
-	public float timerLimit;
-	private bool acivated = false;
+	public float timerLimit = 5.0f;
+	private bool activated = false;
 
-	public LEAP_Manager leap;
 	public GUI_Manager gui;
 	private KnowledgeDrop kDrop;
 
 	void Start ()
 	{
-		timerLimit = 5.0f;
 		kDrop = GetComponent<KnowledgeDrop> ();
-	}
-
-
-	void OnTriggerExit()
-	{
-		CancelGUI ();
 	}
 
 	void OnTriggerStay()
 	{
-		if (!acivated) {
+		if (!activated) {
 			triggerTimer += Time.deltaTime;
-			Debug.Log("loading gui...");
+			Debug.Log("loading...");
 
 			// activate after a few seconds
 			if (triggerTimer > timerLimit) {
-				acivated = true;
-				leap.mode = "gui";
-//				Debug.Log(this.gameObject);
+				activated = true;
 				gui.TurnOnGUI(this.gameObject);
 
-				kDrop.Intro();
+				// start knowledge drop
+				kDrop.TurnOn();
 			}
-
-			// reset activation if user swipes
-			if(Input.GetKey(KeyCode.Escape)) CancelGUI();
 		}
 	}
 
-	public void CancelGUI()
+	void OnTriggerExit()
 	{
-
-		acivated = false;
+		activated = false;
 		triggerTimer = 0.0f;
-
-		leap.mode = "swim";
-
-		// hide everything
+		kDrop.Stop ();
 		gui.TurnOffGUI ();
+	}
+
+	public void CancelTrigger()
+	{
+		triggerTimer = 0.0f;
+		// add to time limit
+		timerLimit = timerLimit + timerLimit / 2;
 	}
 }

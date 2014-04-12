@@ -127,8 +127,11 @@ public class GUI_Manager : MonoBehaviour {
 	}
 	public void TurnOffGUI()
 	{
+		Debug.Log ("turn off gui");
 		activeGUI = false;
-		currentTrigger.GetComponent<GUI_Trigger> ().CancelGUI ();
+		// if we have a trigger set, cancel it
+		Debug.Log (currentTrigger.ToString());
+//		currentTrigger.GetComponent<GUI_Trigger> ().CancelGUI ();
 	}
 
 
