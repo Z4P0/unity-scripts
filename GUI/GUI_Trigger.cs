@@ -36,7 +36,7 @@ public class GUI_Trigger : MonoBehaviour {
 	{
 		activated = false;
 		triggerTimer = 0.0f;
-		kDrop.Stop ();
+		kDrop.TurnOff ();
 		gui.TurnOffGUI ();
 	}
 
