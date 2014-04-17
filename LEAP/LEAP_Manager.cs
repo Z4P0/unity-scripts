@@ -18,6 +18,25 @@ public class LEAP_Manager : MonoBehaviour {
 	float leftOrRight;
 	float upOrDown;
 
+	// set ranges
+	public float horizontal_range = 15f; 	// 15 cm
+	public float vertical_range = 12f;		// 12 cm
+
+	public float leapHorizontalRange = 500f;// based on output from the leap
+	public float leapVerticalRange = 600f;
+
+
+	// setting divisions for LEAP control
+	private float neutral_zone;
+
+	private float left_box;
+	private float right_box;
+	private float center_box;
+
+	private float top_box;
+	private float bottom_box;
+
+
 
 	// Movement variables
 	private float ogX, ogY, ogZ, ogMargin; /* 'og' is for OG which stands for Original Gangsta */
@@ -41,6 +60,9 @@ public class LEAP_Manager : MonoBehaviour {
 	public ClownfishOrbit orbitCamera;
 	
 
+
+
+
 	
 	void Start () {
 		// set vars
@@ -58,8 +80,45 @@ public class LEAP_Manager : MonoBehaviour {
 		controller.Config.SetFloat("Gesture.Swipe.MinVelocity", 500f);
 		controller.Config.SetFloat("Gesture.Swipe.MinLength", 10f);
 		controller.Config.Save();
+
+		// set control area
+		SetupLEAP ();
 	}
 
+	void SetupLEAP() {
+		// 2 cm = neutral zone
+		// 13 cm = control zone
+		// 		5 cm - left control box
+		//		3 cm - center neutral box
+		//		5 cm - right control box
+		// ----
+		// 15 cm = LEAP area
+		
+		/*
+		 * 	neutral zone = 2 / 15 = 13%
+		 * 	control zone = 13 / 15 = 87%
+		 * 		left box = 5 / 13 = 38%
+		 * 		center box = 3 / 13 = 24%
+		 * 		right box = 5 / 13 = 38%
+		 */
+
+		Debug.Log ("LEAP Setup");
+		// make neutral area
+
+		// neutral area
+		neutral_zone = (2 / horizontal_range) * leapHorizontalRange;	// 0 - 2cm
+
+		// horizontal zones (left / right)
+		left_box = (4.5f / horizontal_range) * leapHorizontalRange;		// 2cm - 7cm
+		right_box = (4.5f / horizontal_range) * leapHorizontalRange;	// 10cm - 15cm
+		center_box = (4 / horizontal_range) * leapHorizontalRange;		// 7cm - 10cm
+
+		// vertical zones
+		top_box = (3 / vertical_range) * leapVerticalRange; 			// 8cm - 12cm
+		bottom_box = top_box / 2;			// 0 - 4cm
+		Debug.Log (top_box);
+		Debug.Log (bottom_box);
+	}
 
 
 	void Update () {
@@ -76,86 +135,132 @@ public class LEAP_Manager : MonoBehaviour {
 			leftOrRight = palm.y;
 			upOrDown = palm.x * -2;
 
-
-//			PalmPosition = m_Hand.PalmPosition.ToUnityTranslated();
-//			PalmNormal = m_Hand.PalmNormal.ToUnity();				
-//			PalmDirection = m_Hand.Direction.ToUnity();
-
-
-			// are we in GUI?
-			if(mode == "loading")
-			{
-				Debug.Log("if q swipe is dectected here, cncel the GUI");
+			if (gestures.Count > 0) 
+			{	// swim forward
+				MoveForward();
 			}
-			if(mode == "gui")
-			{
-				/*
-				 * Controls:
-				 * - 1 finger or whole hand?
-				 * - swipe to cancel
-				 */
-				if(fingers == 1)
-				{
-//					Debug.Log("move cursor // scaled");
-					// X and Y
-//					MoveCursor();
-					palm = hand.PalmPosition.ToUnityScaled();
-					leftOrRight = palm.y;
-					upOrDown = palm.x * -2;
-					Debug.Log("x, y [scaled] : " + leftOrRight + ", " + upOrDown);
-					gui.UpdateCursor(leftOrRight, upOrDown);
 
+
+			/* LEFT or RIGHT */
+			if(leftOrRight > neutral_zone) {
+				// left box
+				if(leftOrRight < neutral_zone + left_box) {
+					TurnLeft();
 				}
-
-				// cancel gui activation
-				if(fingers > 3)
-				{
-//					// be ready for a swipe cancel
-//					GestureList gestures = frame.Gestures ();
-//					
-//					// CANCEL if there was a swipe
-//					if (gestures.Count > 0) 
-//					{
-//						Debug.Log("CANCEL");
-//						gui.TurnOffGUI();
-//					}
+				// center box
+				if(leftOrRight < neutral_zone + left_box + center_box && leftOrRight > neutral_zone + left_box + center_box) {
+					Debug.Log("- -");
 				}
-//				gui.UpdateCursor(Input.mousePosition.x, Input.mousePosition.y);
-
-				// reset timer
-				idleTime = 0f;
-
+				// right box
+				if(leftOrRight > neutral_zone + left_box + center_box) {
+					TurnRight();
+				}
 			} else {
-			// we're swimming
-				/* 	fist */
-				if(fingers == 0)
-				{
-					mode = "neutral";
-					clownfish.ApplyDrag();
-					hud.direction = 0;
-				}
-
-
-				/* 	1 finger */
-				if(fingers == 1)
-				{
-					if(mode == "neutral" || mode == "idle")
-					{
-						mode = "camera";
-					}
-				}
-
-
-				/* 	open hand - (4 or more) */
-				if(fingers > 3)
-				{
-					mode = "swim";
-					Swim ();
-				}
+				Debug.Log("in the neutral zone");
 			}
-			// reset timer
-			idleTime = 0f;
-			
+
+			/* UP or DOWN */
+			Debug.Log(upOrDown);
+
+//			if(upOrDown < bottom_box) {
+//				TurnDown();
+//			}
+//
+//			if(upOrDown > bottom_box ) {
+//				Debug.Log("neutral");
+//			}
+			if(upOrDown > top_box * 3) {
+				TurnUp();
+			} else if(upOrDown < bottom_box) {
+				TurnDown();
+			}
+
+
+
+
+
+
+
+
+
+
+
+
+
+//			// are we in GUI?
+//			if(mode == "loading")
+//			{
+//				Debug.Log("if q swipe is dectected here, cncel the GUI");
+//			}
+//			if(mode == "gui")
+//			{
+//				/*
+//				 * Controls:
+//				 * - 1 finger or whole hand?
+//				 * - swipe to cancel
+//				 */
+//				if(fingers == 1)
+//				{
+////					Debug.Log("move cursor // scaled");
+//					// X and Y
+////					MoveCursor();
+//					palm = hand.PalmPosition.ToUnityScaled();
+//					leftOrRight = palm.y;
+//					upOrDown = palm.x * -2;
+//					Debug.Log("x, y [scaled] : " + leftOrRight + ", " + upOrDown);
+//					gui.UpdateCursor(leftOrRight, upOrDown);
+//
+//				}
+//
+//				// cancel gui activation
+//				if(fingers > 2)
+//				{
+////					// be ready for a swipe cancel
+////					GestureList gestures = frame.Gestures ();
+////					
+////					// CANCEL if there was a swipe
+////					if (gestures.Count > 0) 
+////					{
+////						Debug.Log("CANCEL");
+////						gui.TurnOffGUI();
+////					}
+//				}
+////				gui.UpdateCursor(Input.mousePosition.x, Input.mousePosition.y);
+//
+//				// reset timer
+//				idleTime = 0f;
+//
+//			} else {
+//			// we're swimming
+//				/* 	fist */
+//				if(fingers == 0)
+//				{
+//					mode = "neutral";
+//					clownfish.ApplyDrag();
+//					hud.direction = 0;
+//				}
+//
+//
+//				/* 	1 finger */
+//				if(fingers == 1)
+//				{
+//					if(mode == "neutral" || mode == "idle")
+//					{
+//						mode = "camera";
+//					}
+//				}
+//
+//
+//				/* 	open hand - (4 or more) */
+//				if(fingers > 3)
+//				{
+//					mode = "swim";
+//					Swim ();
+//				}
+//			}
+//			// reset timer
+//			idleTime = 0f;
+//			
 		} else
 		{
 			UpdateIdleTimer (); // no one's there
@@ -220,46 +325,70 @@ public class LEAP_Manager : MonoBehaviour {
 			//
 //			Debug.Log("left/right: " + leftOrRight + "\nup/down: " + upOrDown);
 			if (hand.PalmPosition.y < 200) { 
-				clownfish.TurnLeft ();
-				hud.direction = 5;
+				TurnLeft ();
 			}
 			if (hand.PalmPosition.y > 350) { 
-				clownfish.TurnRight (); 
-				hud.direction = 3;
+				TurnRight (); 
 			}
 			if (hand.PalmPosition.x > 45) { 
-				clownfish.TurnDown (); 
-				hud.direction = 4;
+				TurnDown (); 
 			}
 			if (hand.PalmPosition.x < -65) { 
-				clownfish.TurnUp (); 
-				hud.direction = 2;
+				TurnUp (); 
 			}
 
 
 //			float upOrDown = palm.x * -2;
 			// left/right
 			if(leftOrRight < ogX - sensitivity) {
-				clownfish.TurnLeft();
-				hud.direction = 5;
+				TurnLeft();
 			}
 			else if (leftOrRight > ogX + (sensitivity - 5)) {
-				clownfish.TurnRight();
-				hud.direction = 3;
+				TurnRight();
 			}
 			
 			// up/down
 			if(upOrDown + (sensitivity * 2) < ogY) {
-				clownfish.TurnDown();
-				hud.direction = 4;
+				TurnDown();
 			}
 			else if (upOrDown > ogY + (sensitivity * 2)) {
-				clownfish.TurnUp();
-				hud.direction = 2;
+				TurnUp();
 			}
 		}
 		
 	}
+
+
+	// Movement functions
+	// - speed up/down
+	void MoveForward() {
+		clownfish.MoveForward();
+		hud.direction = 1;
+	}
+	void ApplyDrag() {
+		clownfish.ApplyDrag();
+		hud.direction = 1;
+	}
+
+	// Turn functions
+	// - move the clownfish & update HUD
+	void TurnLeft(){
+		clownfish.TurnLeft();
+		hud.direction = 5;
+	}
+	void TurnRight(){
+		clownfish.TurnRight();
+		hud.direction = 3;
+	}
+	void TurnUp(){
+		clownfish.TurnUp();
+		hud.direction = 2;
+	}
+	void TurnDown(){
+		clownfish.TurnDown();
+		hud.direction = 4;
+	}
+
 	
 	void CheckHandPosition(Vector3 newHand)
 	{
@@ -343,15 +472,15 @@ public class LEAP_Manager : MonoBehaviour {
 	void WASDInput()
 	{
 		//add to acceleration if forward movement key is being held
-		if (Input.GetKey(KeyCode.W)) { clownfish.MoveForward(); hud.direction = 1; }
-		if (Input.GetKey(KeyCode.S)) { clownfish.ApplyDrag(); hud.direction = 1; }
+		if (Input.GetKey(KeyCode.W)) { MoveForward(); }
+		if (Input.GetKey(KeyCode.S)) { ApplyDrag(); }
 		// left/right
-		if (Input.GetKey(KeyCode.D)) { clownfish.TurnRight(); hud.direction = 3; }
-		if (Input.GetKey(KeyCode.A)) { clownfish.TurnLeft(); hud.direction = 5; }
+		if (Input.GetKey(KeyCode.D)) { TurnRight(); }
+		if (Input.GetKey(KeyCode.A)) { TurnLeft(); }
 
 		// up/down
-		if (Input.GetKey ("up")) { clownfish.TurnUp(); hud.direction = 2; }
-		if (Input.GetKey ("down")) { clownfish.TurnDown(); hud.direction = 4; }
+		if (Input.GetKey ("up")) { TurnUp(); }
+		if (Input.GetKey ("down")) { TurnDown(); }
 
 		if (Input.GetKey (KeyCode.G))
 		{
