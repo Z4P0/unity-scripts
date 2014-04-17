@@ -9,14 +9,13 @@ public class Clown_Fish_Swim : MonoBehaviour {
 	Animator anim;
 
 	// Movement variables
-	public float turnSpeed, upDownTurnSpeed, accSpeed, maxSpeed, VEL, ACC, DRAG;
+	public float turnSpeed, accSpeed, maxSpeed, VEL, ACC, DRAG;
 
 	
 
 	void Start () {
 		// Set vars
 		turnSpeed = 2.5f;
-		upDownTurnSpeed = 1.25f;
 		accSpeed = 0.5f;
 		maxSpeed = 10.0f;
 		VEL = 0f;
@@ -100,10 +99,10 @@ public class Clown_Fish_Swim : MonoBehaviour {
 	}
 	public void TurnUp()
 	{
-		transform.Rotate(Vector3.left*upDownTurnSpeed/2,Space.Self);
+		transform.Rotate(Vector3.left*turnSpeed/4,Space.Self);
 	}
 	public void TurnDown()
 	{
-		transform.Rotate(Vector3.right*upDownTurnSpeed/2,Space.Self);
+		transform.Rotate(Vector3.right*turnSpeed/4,Space.Self);
 	}
 }
