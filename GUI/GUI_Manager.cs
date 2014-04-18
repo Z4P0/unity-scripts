@@ -12,6 +12,7 @@ public class GUI_Manager : MonoBehaviour {
 	private Vector2 cursor_origin; // should be center of screen
 	private float cursor_x;
 	private float cursor_y;
+	public float moveSpeed = 6.5f;
 
 	// background stuff
 	public Texture2D background;
@@ -120,13 +121,27 @@ public class GUI_Manager : MonoBehaviour {
 
 
 
-
+	// Cursor functions
 	public void ShowCursor()
 	{
 		GUI.color = auxColor;
 		cursor_image = new Rect (cursor_x - cursor.width/2, cursor_y - cursor.height/2, cursor.width, cursor.height);
 		GUI.DrawTexture (cursor_image, cursor);
 	}
+
+	public void MoveCursorLeft(){
+		cursor_x -= moveSpeed;
+	}
+	public void MoveCursorRight(){
+		cursor_x += moveSpeed;
+	}
+	public void MoveCursorUp(){
+		cursor_y -= moveSpeed;
+	}
+	public void MoveCursorDown(){
+		cursor_y += moveSpeed;
+	}
+
 
 	public void ShowBackground()
 	{

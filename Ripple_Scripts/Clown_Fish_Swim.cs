@@ -99,10 +99,10 @@ public class Clown_Fish_Swim : MonoBehaviour {
 	}
 	public void TurnUp()
 	{
-		transform.Rotate(Vector3.left*turnSpeed/4,Space.Self);
+		transform.Rotate(Vector3.left*turnSpeed/3,Space.Self);
 	}
 	public void TurnDown()
 	{
-		transform.Rotate(Vector3.right*turnSpeed/4,Space.Self);
+		transform.Rotate(Vector3.right*turnSpeed/3,Space.Self);
 	}
 }
